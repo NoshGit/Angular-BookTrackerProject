@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 
 import { Book } from "app/models/book";
-import { allBooks } from 'app/data';
 import { Reader } from "app/models/reader";
 import { LoggerService } from 'app/services/logger.service';
 import { DataService } from 'app/services/data.service';
+import { AppErrors } from 'app/models/app-errors';
 
 @Component({
   selector: 'app-dashboard',
@@ -23,7 +23,12 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit() {
     this.allBooks = this.dataService.getallBooks();
-    this.allReaders = this.dataService.getAllReaders();
+    this.dataService.getAllReaders()
+    .subscribe(
+      (data: Reader[] | AppErrors) => this.allReaders = <Reader[]>data,
+      (error:AppErrors) => this.logger.log(error.customMsg),
+      () => this.logger.log('Get All Readers Observable Done!!!')
+    );
     this.mostPopularBook = this.dataService.mostPopularBook;
   }
 
