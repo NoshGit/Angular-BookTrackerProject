@@ -18,7 +18,7 @@ export class DataService {
   mostPopularBook: Book = allBooks[0];
 
   getAllReaders(): Observable <Reader[] | AppErrors> {
-    return this.http.get<Reader[]>('/api/error/500')
+    return this.http.get<Reader[]>('/api/readers')
     .pipe(
       catchError(this.handleError)
     );
@@ -32,6 +32,20 @@ export class DataService {
     }
     
     return throwError(dataError);
+  }
+
+  /**Promise Example */
+
+  getAuthorRecommendation(id:number): Promise<string> {
+    return new Promise((resolve, reject)=> {
+      setTimeout(()=>{
+        if(id > 0){
+          resolve('Dr. Zeus');
+        }else{
+          reject('Invalid Reader ID');
+        }
+      }, 2000);
+    });
   }
 
   getReaderById(id: number): Reader {

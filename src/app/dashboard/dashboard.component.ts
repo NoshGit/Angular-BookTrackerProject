@@ -30,7 +30,33 @@ export class DashboardComponent implements OnInit {
       () => this.logger.log('Get All Readers Observable Done!!!')
     );
     this.mostPopularBook = this.dataService.mostPopularBook;
+
+    //this.getAutorrecommendationAsync(-1);
+    
+    this.dataService.getAuthorRecommendation(1)
+    .then(
+      (author:string) => {
+        this.logger.log(`Recomended Author:${author}`)
+        //throw new Error('There was something Wrong!!!');
+      },
+      (error:string) => this.logger.error(`This Promise was Rejected: ${error}`)
+    )
+    .catch((error:Error)=> this.logger.error(`From: Promise:${error.message}`))
+
+    this.logger.log('Done With DashBoard Construction');
   }
+
+  /**Workng on Promise with Async and Await */
+
+  /*private async getAutorrecommendationAsync(readerId:number): Promise<void>{
+    try{
+      let author:string = await this.dataService.getAuthorRecommendation(readerId);
+      this.logger.log(`Recomended Author from Async:${author}`);
+    }
+    catch(error){
+      this.logger.error(error);
+    }
+  } */
 
   deleteBook(bookID: number): void {
     console.warn(`Delete book not yet implemented (bookID: ${bookID}).`);

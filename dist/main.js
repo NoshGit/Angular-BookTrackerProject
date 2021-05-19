@@ -249,7 +249,7 @@ let DataService = class DataService {
         this.mostPopularBook = app_data__WEBPACK_IMPORTED_MODULE_3__["allBooks"][0];
     }
     getAllReaders() {
-        return this.http.get('/api/error/500')
+        return this.http.get('/api/readers')
             .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_5__["catchError"])(this.handleError));
     }
     handleError(error) {
@@ -259,6 +259,19 @@ let DataService = class DataService {
             customMsg: 'There is some issue with Server, Please try later!!!'
         };
         return Object(rxjs__WEBPACK_IMPORTED_MODULE_4__["throwError"])(dataError);
+    }
+    /**Promise Example */
+    getAuthorRecommendation(id) {
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                if (id > 0) {
+                    resolve('Dr. Zeus');
+                }
+                else {
+                    reject('Invalid Reader ID');
+                }
+            }, 2000);
+        });
     }
     getReaderById(id) {
         return app_data__WEBPACK_IMPORTED_MODULE_3__["allReaders"].find(reader => reader.readerID === id);
@@ -377,7 +390,25 @@ let DashboardComponent = class DashboardComponent {
         this.dataService.getAllReaders()
             .subscribe((data) => this.allReaders = data, (error) => this.logger.log(error.customMsg), () => this.logger.log('Get All Readers Observable Done!!!'));
         this.mostPopularBook = this.dataService.mostPopularBook;
+        //this.getAutorrecommendationAsync(-1);
+        this.dataService.getAuthorRecommendation(1)
+            .then((author) => {
+            this.logger.log(`Recomended Author:${author}`);
+            //throw new Error('There was something Wrong!!!');
+        }, (error) => this.logger.error(`This Promise was Rejected: ${error}`))
+            .catch((error) => this.logger.error(`From: Promise:${error.message}`));
+        this.logger.log('Done With DashBoard Construction');
     }
+    /**Workng on Promise with Async and Await */
+    /*private async getAutorrecommendationAsync(readerId:number): Promise<void>{
+      try{
+        let author:string = await this.dataService.getAuthorRecommendation(readerId);
+        this.logger.log(`Recomended Author from Async:${author}`);
+      }
+      catch(error){
+        this.logger.error(error);
+      }
+    } */
     deleteBook(bookID) {
         console.warn(`Delete book not yet implemented (bookID: ${bookID}).`);
     }
