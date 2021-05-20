@@ -372,23 +372,26 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! tslib */ "mrSG");
 /* harmony import */ var _raw_loader_dashboard_component_html__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! raw-loader!./dashboard.component.html */ "H/d9");
 /* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @angular/core */ "fXoL");
-/* harmony import */ var app_services_logger_service__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! app/services/logger.service */ "Mb37");
-/* harmony import */ var app_services_data_service__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! app/services/data.service */ "EnSQ");
+/* harmony import */ var _angular_platform_browser__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @angular/platform-browser */ "jhN1");
+/* harmony import */ var app_services_logger_service__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! app/services/logger.service */ "Mb37");
+/* harmony import */ var app_services_data_service__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! app/services/data.service */ "EnSQ");
+
 
 
 
 
 
 let DashboardComponent = class DashboardComponent {
-    constructor(logger, dataService) {
+    constructor(logger, dataService, title) {
         this.logger = logger;
         this.dataService = dataService;
-        logger.log('Dashboard Constructor Loaded');
+        this.title = title;
+        logger.log(`Dashboard Constructor Loaded ${_angular_core__WEBPACK_IMPORTED_MODULE_2__["VERSION"].full}`);
     }
     ngOnInit() {
         this.allBooks = this.dataService.getallBooks();
-        this.dataService.getAllReaders()
-            .subscribe((data) => this.allReaders = data, (error) => this.logger.log(error.customMsg), () => this.logger.log('Get All Readers Observable Done!!!'));
+        this.title.setTitle(`Book Title - Dashbord`);
+        this.dataService.getAllReaders().subscribe((data) => this.allReaders = data, (error) => this.logger.log(error.customMsg), () => this.logger.log('Get All Readers Observable Done!!!'));
         this.mostPopularBook = this.dataService.mostPopularBook;
         //this.getAutorrecommendationAsync(-1);
         this.dataService.getAuthorRecommendation(1)
@@ -398,6 +401,7 @@ let DashboardComponent = class DashboardComponent {
         }, (error) => this.logger.error(`This Promise was Rejected: ${error}`))
             .catch((error) => this.logger.error(`From: Promise:${error.message}`));
         this.logger.log('Done With DashBoard Construction');
+        throw new Error('Some this is Ugly');
     }
     /**Workng on Promise with Async and Await */
     /*private async getAutorrecommendationAsync(readerId:number): Promise<void>{
@@ -417,8 +421,9 @@ let DashboardComponent = class DashboardComponent {
     }
 };
 DashboardComponent.ctorParameters = () => [
-    { type: app_services_logger_service__WEBPACK_IMPORTED_MODULE_3__["LoggerService"] },
-    { type: app_services_data_service__WEBPACK_IMPORTED_MODULE_4__["DataService"] }
+    { type: app_services_logger_service__WEBPACK_IMPORTED_MODULE_4__["LoggerService"] },
+    { type: app_services_data_service__WEBPACK_IMPORTED_MODULE_5__["DataService"] },
+    { type: _angular_platform_browser__WEBPACK_IMPORTED_MODULE_3__["Title"] }
 ];
 DashboardComponent = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"])([
     Object(_angular_core__WEBPACK_IMPORTED_MODULE_2__["Component"])({
@@ -541,6 +546,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _edit_reader_edit_reader_component__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./edit-reader/edit-reader.component */ "dkrA");
 /* harmony import */ var _services_data_service__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./services/data.service */ "EnSQ");
 /* harmony import */ var _services_logger_service__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./services/logger.service */ "Mb37");
+/* harmony import */ var _services_bt_error_handler_service__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./services/bt-error-handler.service */ "nuZs");
+
 
 
 
@@ -581,7 +588,8 @@ AppModule = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"])([
             }},
             {provide: DataService, useFactory: dataFactoryService, deps:[LoggerService]}, */
             _services_logger_service__WEBPACK_IMPORTED_MODULE_13__["LoggerService"],
-            _services_data_service__WEBPACK_IMPORTED_MODULE_12__["DataService"]
+            _services_data_service__WEBPACK_IMPORTED_MODULE_12__["DataService"],
+            { provide: _angular_core__WEBPACK_IMPORTED_MODULE_2__["ErrorHandler"], useClass: _services_bt_error_handler_service__WEBPACK_IMPORTED_MODULE_14__["BtErrorHandlerService"] }
         ],
         bootstrap: [_app_component__WEBPACK_IMPORTED_MODULE_7__["AppComponent"]]
     })
@@ -666,6 +674,40 @@ EditReaderComponent = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"])([
         providers: [app_services_badge_service__WEBPACK_IMPORTED_MODULE_4__["BadgeService"]]
     })
 ], EditReaderComponent);
+
+
+
+/***/ }),
+
+/***/ "nuZs":
+/*!******************************************************!*\
+  !*** ./src/app/services/bt-error-handler.service.ts ***!
+  \******************************************************/
+/*! exports provided: BtErrorHandlerService */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "BtErrorHandlerService", function() { return BtErrorHandlerService; });
+/* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! tslib */ "mrSG");
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/core */ "fXoL");
+
+
+let BtErrorHandlerService = class BtErrorHandlerService {
+    constructor() { }
+    handleError(error) {
+        var catchError = {
+            errorNumber: 500,
+            message: error.message,
+            customMsg: 'Oops!!!Looks Like Something in Application is Wrong'
+        };
+        console.log(catchError);
+    }
+};
+BtErrorHandlerService.ctorParameters = () => [];
+BtErrorHandlerService = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"])([
+    Object(_angular_core__WEBPACK_IMPORTED_MODULE_1__["Injectable"])()
+], BtErrorHandlerService);
 
 
 

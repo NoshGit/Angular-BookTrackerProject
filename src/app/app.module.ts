@@ -1,5 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import { ErrorHandler, NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 
@@ -13,6 +13,7 @@ import { EditReaderComponent } from './edit-reader/edit-reader.component';
 import { DataService } from './services/data.service';
 import { LoggerService } from './services/logger.service';
 import { dataFactoryService } from './services/data.service.factory';
+import { BtErrorHandlerService } from './services/bt-error-handler.service';
 
 @NgModule({
   declarations: [
@@ -37,7 +38,8 @@ import { dataFactoryService } from './services/data.service.factory';
     }},
     {provide: DataService, useFactory: dataFactoryService, deps:[LoggerService]}, */ 
     LoggerService,
-    DataService
+    DataService,
+    {provide: ErrorHandler, useClass: BtErrorHandlerService}
   ],
   bootstrap: [AppComponent]
 })

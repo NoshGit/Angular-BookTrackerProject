@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-
+import { Component, OnInit, VERSION } from '@angular/core';
+import { Title } from '@angular/platform-browser';
 import { Book } from "app/models/book";
 import { Reader } from "app/models/reader";
 import { LoggerService } from 'app/services/logger.service';
@@ -17,20 +17,22 @@ export class DashboardComponent implements OnInit {
   allReaders: Reader[];
   mostPopularBook: Book;
 
-  constructor(private logger: LoggerService, private dataService: DataService) { 
-    logger.log('Dashboard Constructor Loaded');
+  constructor(private logger: LoggerService, private dataService: DataService, private title: Title) { 
+    logger.log(`Dashboard Constructor Loaded ${VERSION.full}`);
   }
 
   ngOnInit() {
     this.allBooks = this.dataService.getallBooks();
-    this.dataService.getAllReaders()
-    .subscribe(
+    this.title.setTitle(`Book Title - Dashbord`);
+
+    this.dataService.getAllReaders().subscribe(
       (data: Reader[] | AppErrors) => this.allReaders = <Reader[]>data,
       (error:AppErrors) => this.logger.log(error.customMsg),
       () => this.logger.log('Get All Readers Observable Done!!!')
     );
-    this.mostPopularBook = this.dataService.mostPopularBook;
 
+    this.mostPopularBook = this.dataService.mostPopularBook;
+    
     //this.getAutorrecommendationAsync(-1);
     
     this.dataService.getAuthorRecommendation(1)
@@ -44,6 +46,9 @@ export class DashboardComponent implements OnInit {
     .catch((error:Error)=> this.logger.error(`From: Promise:${error.message}`))
 
     this.logger.log('Done With DashBoard Construction');
+
+    throw new Error('Some this is Ugly');
+    
   }
 
   /**Workng on Promise with Async and Await */
