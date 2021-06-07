@@ -1,4 +1,4 @@
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { allBooks, allReaders } from 'app/data';
 import { AppErrors } from 'app/models/app-errors';
@@ -52,12 +52,21 @@ export class DataService {
     return allReaders.find(reader => reader.readerID === id);
   }
   
-  getallBooks(): Book[] {
-    return allBooks;
+  getallBooks(): Observable<Book[]> {
+    this.logger.log('Getting All Books from Server');
+    return this.http.get<Book[]>('/api/books');
   }
 
-  getBookById(id: number): Book {
-    return allBooks.find(book => book.bookID === id);
+  getBookById(id: number): Observable<Book>{
+    this.logger.log(`Getting Books #${id} from Server`);
+    let getHeader: HttpHeaders = new HttpHeaders({
+      'Accept':'application/json',
+      'Autorization': 'Bearer my-token'
+    });
+
+    return this.http.get<Book>(`/api/books/${id}`, {
+      headers: getHeader
+    });
   }
 
   setMostPopularBook(popularBook: Book): void {

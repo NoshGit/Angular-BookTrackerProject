@@ -192,7 +192,8 @@ let EditBookComponent = class EditBookComponent {
     }
     ngOnInit() {
         let bookID = parseInt(this.route.snapshot.params['id']);
-        this.selectedBook = this.dataService.getBookById(bookID);
+        this.dataService.getBookById(bookID)
+            .subscribe((data) => this.selectedBook = data, err => console.error('Loggin Get Book Error', err));
     }
     setMostPopular() {
         this.dataService.setMostPopularBook(this.selectedBook);
@@ -277,10 +278,18 @@ let DataService = class DataService {
         return app_data__WEBPACK_IMPORTED_MODULE_3__["allReaders"].find(reader => reader.readerID === id);
     }
     getallBooks() {
-        return app_data__WEBPACK_IMPORTED_MODULE_3__["allBooks"];
+        this.logger.log('Getting All Books from Server');
+        return this.http.get('/api/books');
     }
     getBookById(id) {
-        return app_data__WEBPACK_IMPORTED_MODULE_3__["allBooks"].find(book => book.bookID === id);
+        this.logger.log(`Getting Books #${id} from Server`);
+        let getHeader = new _angular_common_http__WEBPACK_IMPORTED_MODULE_1__["HttpHeaders"]({
+            'Accept': 'application/json',
+            'Autorization': 'Bearer my-token'
+        });
+        return this.http.get(`/api/books/${id}`, {
+            headers: getHeader
+        });
     }
     setMostPopularBook(popularBook) {
         this.mostPopularBook = popularBook;
@@ -389,7 +398,8 @@ let DashboardComponent = class DashboardComponent {
         logger.log(`Dashboard Constructor Loaded ${_angular_core__WEBPACK_IMPORTED_MODULE_2__["VERSION"].full}`);
     }
     ngOnInit() {
-        this.allBooks = this.dataService.getallBooks();
+        this.dataService.getallBooks()
+            .subscribe((data) => this.allBooks = data, err => console.log(err), () => this.logger.log('Getting All Books Completed'));
         this.title.setTitle(`Book Title - Dashbord`);
         this.dataService.getAllReaders().subscribe((data) => this.allReaders = data, (error) => this.logger.log(error.customMsg), () => this.logger.log('Get All Readers Observable Done!!!'));
         this.mostPopularBook = this.dataService.mostPopularBook;

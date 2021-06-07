@@ -22,7 +22,12 @@ export class DashboardComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.allBooks = this.dataService.getallBooks();
+    this.dataService.getallBooks()
+    .subscribe(
+      (data:Book[]) => this.allBooks = data,
+      err => console.log(err),
+      () => this.logger.log('Getting All Books Completed')
+    );
     this.title.setTitle(`Book Title - Dashbord`);
 
     this.dataService.getAllReaders().subscribe(
