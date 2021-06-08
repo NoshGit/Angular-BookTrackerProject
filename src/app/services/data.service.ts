@@ -3,9 +3,10 @@ import { Injectable } from '@angular/core';
 import { allBooks, allReaders } from 'app/data';
 import { AppErrors } from 'app/models/app-errors';
 import { Book } from 'app/models/book';
+import { OldBook } from 'app/models/oldBook';
 import { Reader } from 'app/models/reader';
 import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, map, tap } from 'rxjs/operators';
 import { LoggerService } from './logger.service';
 
 @Injectable(/*{
@@ -69,8 +70,39 @@ export class DataService {
     });
   }
 
+  getOldBook(id:number): Observable<OldBook> {
+    return this.http.get<Book>(`/api/books/${id}`)
+    .pipe(
+      map(book => <OldBook>{
+        bookTitle: book.title,
+        year: book.publicationYear
+      }),
+      tap(oldbook => console.log('Classic Book', oldbook))
+    );
+  }
+
   setMostPopularBook(popularBook: Book): void {
     this.mostPopularBook = popularBook;
+  }
+
+  addBook(book: Book): Observable<Book> {
+    return this.http.post<Book>('/api/books', book, {
+      headers: new HttpHeaders({
+        'content-type': 'application/json'
+      })
+    });
+  }
+
+  updateBook(book: Book): Observable<void> {
+    return this.http.put<void>(`/api/books/${book.bookID}`, book, {
+      headers: new HttpHeaders({
+        'content-type': 'application/json'
+      })
+    });
+  }
+
+  deleteBook(bookID: number): Observable<void> {
+    return this.http.delete<void>(`/api/books/${bookID}`);
   }
 
 }

@@ -10,7 +10,7 @@ export class LoggerService {
         console.log(`${message} (${time})`);
     }
 
-    error(message:any): void {
-        console.error(`ERROR: ${message}`);
+    error(message:any, message2?:any): void {
+        console.error(`ERROR: ${message} ${message2}`);
     }
 }

@@ -22,12 +22,7 @@ export class DashboardComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.dataService.getallBooks()
-    .subscribe(
-      (data:Book[]) => this.allBooks = data,
-      err => console.log(err),
-      () => this.logger.log('Getting All Books Completed')
-    );
+    this.getAllBooks();
     this.title.setTitle(`Book Title - Dashbord`);
 
     this.dataService.getAllReaders().subscribe(
@@ -69,7 +64,23 @@ export class DashboardComponent implements OnInit {
   } */
 
   deleteBook(bookID: number): void {
-    console.warn(`Delete book not yet implemented (bookID: ${bookID}).`);
+    this.dataService.deleteBook(bookID)
+    .subscribe(
+      ()=> {        
+        let index: number = this.allBooks.findIndex(book => book.bookID === bookID)
+        this.allBooks.splice(index, 1);
+        console.log(`Book Deleted Successfully`);
+      }
+    )
+  }
+
+  getAllBooks(): void {
+    this.dataService.getallBooks()
+    .subscribe(
+      (data:Book[]) => this.allBooks = data,
+      err => console.log(err),
+      () => this.logger.log('Getting All Books Completed')
+    );
   }
 
   deleteReader(readerID: number): void {

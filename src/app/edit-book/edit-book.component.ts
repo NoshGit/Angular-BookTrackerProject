@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { Book } from 'app/models/book';
+import { OldBook } from 'app/models/oldBook';
 import { DataService } from 'app/services/data.service';
 import { LoggerService } from 'app/services/logger.service';
 
@@ -26,6 +27,10 @@ export class EditBookComponent implements OnInit {
       (data:Book) => this.selectedBook = data,
       err => console.error('Loggin Get Book Error', err)
     );
+
+    this.dataService.getOldBook(bookID).subscribe(
+      (data:OldBook) => this.logger.log(`Old Book Tile: ${data.bookTitle}`)
+    )
   }
 
   setMostPopular(): void {
@@ -34,6 +39,10 @@ export class EditBookComponent implements OnInit {
   }
 
   saveChanges(): void {
-    console.warn('Save changes to book not yet implemented.');
+    this.dataService.updateBook(this.selectedBook)
+    .subscribe(
+      () => this.logger.log(`${this.selectedBook.title} has been updated successfully`),
+      (err:any) => this.logger.error('Update Book Error',err)
+    )
   }
 }

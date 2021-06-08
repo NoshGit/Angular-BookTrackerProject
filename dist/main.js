@@ -38,20 +38,27 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! tslib */ "mrSG");
 /* harmony import */ var _raw_loader_add_book_component_html__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! raw-loader!./add-book.component.html */ "2y6B");
 /* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @angular/core */ "fXoL");
+/* harmony import */ var app_services_data_service__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! app/services/data.service */ "EnSQ");
+
 
 
 
 let AddBookComponent = class AddBookComponent {
-    constructor() { }
+    constructor(dataService) {
+        this.dataService = dataService;
+    }
     ngOnInit() { }
     saveBook(formValues) {
         let newBook = formValues;
         newBook.bookID = 0;
         console.log(newBook);
-        console.warn('Save new book not yet implemented.');
+        this.dataService.addBook(newBook)
+            .subscribe((data) => console.log('New Book Added', data));
     }
 };
-AddBookComponent.ctorParameters = () => [];
+AddBookComponent.ctorParameters = () => [
+    { type: app_services_data_service__WEBPACK_IMPORTED_MODULE_3__["DataService"] }
+];
 AddBookComponent = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"])([
     Object(_angular_core__WEBPACK_IMPORTED_MODULE_2__["Component"])({
         selector: 'app-add-book',
@@ -194,13 +201,15 @@ let EditBookComponent = class EditBookComponent {
         let bookID = parseInt(this.route.snapshot.params['id']);
         this.dataService.getBookById(bookID)
             .subscribe((data) => this.selectedBook = data, err => console.error('Loggin Get Book Error', err));
+        this.dataService.getOldBook(bookID).subscribe((data) => this.logger.log(`Old Book Tile: ${data.bookTitle}`));
     }
     setMostPopular() {
         this.dataService.setMostPopularBook(this.selectedBook);
         this.logger.log(`New Most Popular Book "${this.selectedBook.title}"`);
     }
     saveChanges() {
-        console.warn('Save changes to book not yet implemented.');
+        this.dataService.updateBook(this.selectedBook)
+            .subscribe(() => this.logger.log(`${this.selectedBook.title} has been updated successfully`), (err) => this.logger.error('Update Book Error', err));
     }
 };
 EditBookComponent.ctorParameters = () => [
@@ -291,8 +300,32 @@ let DataService = class DataService {
             headers: getHeader
         });
     }
+    getOldBook(id) {
+        return this.http.get(`/api/books/${id}`)
+            .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_5__["map"])(book => ({
+            bookTitle: book.title,
+            year: book.publicationYear
+        })), Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_5__["tap"])(oldbook => console.log('Classic Book', oldbook)));
+    }
     setMostPopularBook(popularBook) {
         this.mostPopularBook = popularBook;
+    }
+    addBook(book) {
+        return this.http.post('/api/books', book, {
+            headers: new _angular_common_http__WEBPACK_IMPORTED_MODULE_1__["HttpHeaders"]({
+                'content-type': 'application/json'
+            })
+        });
+    }
+    updateBook(book) {
+        return this.http.put(`/api/books/${book.bookID}`, book, {
+            headers: new _angular_common_http__WEBPACK_IMPORTED_MODULE_1__["HttpHeaders"]({
+                'content-type': 'application/json'
+            })
+        });
+    }
+    deleteBook(bookID) {
+        return this.http.delete(`/api/books/${bookID}`);
     }
 };
 DataService.ctorParameters = () => [
@@ -354,8 +387,8 @@ let LoggerService = class LoggerService {
         const time = new Date().toLocaleTimeString();
         console.log(`${message} (${time})`);
     }
-    error(message) {
-        console.error(`ERROR: ${message}`);
+    error(message, message2) {
+        console.error(`ERROR: ${message} ${message2}`);
     }
 };
 LoggerService = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"])([
@@ -398,8 +431,7 @@ let DashboardComponent = class DashboardComponent {
         logger.log(`Dashboard Constructor Loaded ${_angular_core__WEBPACK_IMPORTED_MODULE_2__["VERSION"].full}`);
     }
     ngOnInit() {
-        this.dataService.getallBooks()
-            .subscribe((data) => this.allBooks = data, err => console.log(err), () => this.logger.log('Getting All Books Completed'));
+        this.getAllBooks();
         this.title.setTitle(`Book Title - Dashbord`);
         this.dataService.getAllReaders().subscribe((data) => this.allReaders = data, (error) => this.logger.log(error.customMsg), () => this.logger.log('Get All Readers Observable Done!!!'));
         this.mostPopularBook = this.dataService.mostPopularBook;
@@ -424,7 +456,16 @@ let DashboardComponent = class DashboardComponent {
       }
     } */
     deleteBook(bookID) {
-        console.warn(`Delete book not yet implemented (bookID: ${bookID}).`);
+        this.dataService.deleteBook(bookID)
+            .subscribe(() => {
+            let index = this.allBooks.findIndex(book => book.bookID === bookID);
+            this.allBooks.splice(index, 1);
+            console.log(`Book Deleted Successfully`);
+        });
+    }
+    getAllBooks() {
+        this.dataService.getallBooks()
+            .subscribe((data) => this.allBooks = data, err => console.log(err), () => this.logger.log('Getting All Books Completed'));
     }
     deleteReader(readerID) {
         console.warn(`Delete reader not yet implemented (readerID: ${readerID}).`);
