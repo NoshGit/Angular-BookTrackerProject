@@ -5,6 +5,7 @@ import { Reader } from "app/models/reader";
 import { LoggerService } from 'app/services/logger.service';
 import { DataService } from 'app/services/data.service';
 import { AppErrors } from 'app/models/app-errors';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-dashboard',
@@ -17,12 +18,22 @@ export class DashboardComponent implements OnInit {
   allReaders: Reader[];
   mostPopularBook: Book;
 
-  constructor(private logger: LoggerService, private dataService: DataService, private title: Title) { 
+  constructor(
+    private logger: LoggerService, private dataService: DataService, private title: Title,
+    private route: ActivatedRoute
+    ) { 
     logger.log(`Dashboard Constructor Loaded ${VERSION.full}`);
   }
 
   ngOnInit() {
-    this.getAllBooks();
+    let resolvedData: Book[] | AppErrors = this.route.snapshot.data['resolvedBooks'];
+
+    if( resolvedData instanceof AppErrors){
+      this.logger.error(`Dashboard Component Error: ${resolvedData.customMsg}`);
+    }else{
+      this.allBooks = resolvedData;
+    }
+
     this.title.setTitle(`Book Title - Dashbord`);
 
     this.dataService.getAllReaders().subscribe(
@@ -72,15 +83,6 @@ export class DashboardComponent implements OnInit {
         console.log(`Book Deleted Successfully`);
       }
     )
-  }
-
-  getAllBooks(): void {
-    this.dataService.getallBooks()
-    .subscribe(
-      (data:Book[]) => this.allBooks = data,
-      err => console.log(err),
-      () => this.logger.log('Getting All Books Completed')
-    );
   }
 
   deleteReader(readerID: number): void {

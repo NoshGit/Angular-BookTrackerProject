@@ -1,5 +1,5 @@
-export interface AppErrors {
-    errorNumber: number,
-    message: string,
-    customMsg: string,
+export class AppErrors {
+    errorNumber: number;
+    message: string;
+    customMsg: string;
 }

@@ -5,7 +5,7 @@ import { AppErrors } from 'app/models/app-errors';
 import { Book } from 'app/models/book';
 import { OldBook } from 'app/models/oldBook';
 import { Reader } from 'app/models/reader';
-import { Observable, throwError } from 'rxjs';
+import { Observable, pipe, throwError } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { LoggerService } from './logger.service';
 
@@ -26,12 +26,12 @@ export class DataService {
   }
 
   handleError(error: HttpErrorResponse): Observable<AppErrors>{
-    let dataError : AppErrors ={
-      errorNumber: 500,
-      message: error.statusText,
-      customMsg: 'There is some issue with Server, Please try later!!!'
-    }
+    let dataError : AppErrors = new AppErrors();
     
+    dataError.errorNumber= 500;
+    dataError.message= error.statusText;
+    dataError.customMsg= 'There is some issue with Server, Please try later!!!';
+      
     return throwError(dataError);
   }
 
@@ -53,9 +53,12 @@ export class DataService {
     return allReaders.find(reader => reader.readerID === id);
   }
   
-  getallBooks(): Observable<Book[]> {
+  getallBooks(): Observable<Book[] | AppErrors> {
     this.logger.log('Getting All Books from Server');
-    return this.http.get<Book[]>('/api/books');
+    return this.http.get<Book[]>('/api/books')
+    .pipe(
+      catchError(this.handleError)
+    );
   }
 
   getBookById(id: number): Observable<Book>{
