@@ -1,7 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { ErrorHandler, NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 
 import { AddBookComponent } from './add-book/add-book.component';
 import { AddReaderComponent } from './add-reader/add-reader.component';
@@ -14,6 +14,8 @@ import { DataService } from './services/data.service';
 import { LoggerService } from './services/logger.service';
 import { dataFactoryService } from './services/data.service.factory';
 import { BtErrorHandlerService } from './services/bt-error-handler.service';
+import { AppHeaderInterceptor } from './services/app-header.interceptor';
+import { LogRequestInterceptor } from './services/log-request.interceptor';
 
 @NgModule({
   declarations: [
@@ -39,7 +41,9 @@ import { BtErrorHandlerService } from './services/bt-error-handler.service';
     {provide: DataService, useFactory: dataFactoryService, deps:[LoggerService]}, */ 
     LoggerService,
     DataService,
-    {provide: ErrorHandler, useClass: BtErrorHandlerService}
+    {provide: ErrorHandler, useClass: BtErrorHandlerService},
+    {provide: HTTP_INTERCEPTORS, useClass: AppHeaderInterceptor, multi: true},
+    {provide: HTTP_INTERCEPTORS, useClass: LogRequestInterceptor, multi: true}
   ],
   bootstrap: [AppComponent]
 })

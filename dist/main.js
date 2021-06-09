@@ -12,6 +12,32 @@ module.exports = __webpack_require__(/*! D:\Noshir\Playground\Angular\Uploaded-A
 
 /***/ }),
 
+/***/ "2pIK":
+/*!****************************************************!*\
+  !*** ./src/app/services/app-header.interceptor.ts ***!
+  \****************************************************/
+/*! exports provided: AppHeaderInterceptor */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "AppHeaderInterceptor", function() { return AppHeaderInterceptor; });
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ "fXoL");
+
+Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Injectable"])();
+class AppHeaderInterceptor {
+    intercept(req, next) {
+        console.log(`Header Interceptor Url: ${req.url}`);
+        let currReq = req.clone({
+            setHeaders: { 'Content-type': 'application/json' }
+        });
+        return next.handle(currReq);
+    }
+}
+
+
+/***/ }),
+
 /***/ "2y6B":
 /*!****************************************************************************************!*\
   !*** ./node_modules/raw-loader/dist/cjs.js!./src/app/add-book/add-book.component.html ***!
@@ -357,6 +383,45 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "Lrjk":
+/*!*****************************************************!*\
+  !*** ./src/app/services/log-request.interceptor.ts ***!
+  \*****************************************************/
+/*! exports provided: LogRequestInterceptor */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "LogRequestInterceptor", function() { return LogRequestInterceptor; });
+/* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! tslib */ "mrSG");
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/core */ "fXoL");
+/* harmony import */ var _angular_common_http__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @angular/common/http */ "IheW");
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! rxjs/operators */ "kU1M");
+
+
+
+
+let LogRequestInterceptor = class LogRequestInterceptor {
+    constructor() { }
+    intercept(request, next) {
+        console.log(`Logging Response from URL: ${request.url}`);
+        return next.handle(request)
+            .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_3__["tap"])(event => {
+            if (event.type === _angular_common_http__WEBPACK_IMPORTED_MODULE_2__["HttpEventType"].Response) {
+                console.log('Interceptor Response', event.body);
+            }
+        }));
+    }
+};
+LogRequestInterceptor.ctorParameters = () => [];
+LogRequestInterceptor = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"])([
+    Object(_angular_core__WEBPACK_IMPORTED_MODULE_1__["Injectable"])()
+], LogRequestInterceptor);
+
+
+
+/***/ }),
+
 /***/ "MIyZ":
 /*!********************************************************************************************!*\
   !*** ./node_modules/raw-loader/dist/cjs.js!./src/app/add-reader/add-reader.component.html ***!
@@ -624,6 +689,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _services_data_service__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./services/data.service */ "EnSQ");
 /* harmony import */ var _services_logger_service__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./services/logger.service */ "Mb37");
 /* harmony import */ var _services_bt_error_handler_service__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./services/bt-error-handler.service */ "nuZs");
+/* harmony import */ var _services_app_header_interceptor__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./services/app-header.interceptor */ "2pIK");
+/* harmony import */ var _services_log_request_interceptor__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./services/log-request.interceptor */ "Lrjk");
+
+
 
 
 
@@ -666,7 +735,9 @@ AppModule = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"])([
             {provide: DataService, useFactory: dataFactoryService, deps:[LoggerService]}, */
             _services_logger_service__WEBPACK_IMPORTED_MODULE_13__["LoggerService"],
             _services_data_service__WEBPACK_IMPORTED_MODULE_12__["DataService"],
-            { provide: _angular_core__WEBPACK_IMPORTED_MODULE_2__["ErrorHandler"], useClass: _services_bt_error_handler_service__WEBPACK_IMPORTED_MODULE_14__["BtErrorHandlerService"] }
+            { provide: _angular_core__WEBPACK_IMPORTED_MODULE_2__["ErrorHandler"], useClass: _services_bt_error_handler_service__WEBPACK_IMPORTED_MODULE_14__["BtErrorHandlerService"] },
+            { provide: _angular_common_http__WEBPACK_IMPORTED_MODULE_4__["HTTP_INTERCEPTORS"], useClass: _services_app_header_interceptor__WEBPACK_IMPORTED_MODULE_15__["AppHeaderInterceptor"], multi: true },
+            { provide: _angular_common_http__WEBPACK_IMPORTED_MODULE_4__["HTTP_INTERCEPTORS"], useClass: _services_log_request_interceptor__WEBPACK_IMPORTED_MODULE_16__["LogRequestInterceptor"], multi: true }
         ],
         bootstrap: [_app_component__WEBPACK_IMPORTED_MODULE_7__["AppComponent"]]
     })
