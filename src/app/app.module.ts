@@ -16,6 +16,7 @@ import { dataFactoryService } from './services/data.service.factory';
 import { BtErrorHandlerService } from './services/bt-error-handler.service';
 import { AppHeaderInterceptor } from './services/app-header.interceptor';
 import { LogRequestInterceptor } from './services/log-request.interceptor';
+import { CacheInterceptor } from './services/cache.interceptor';
 
 @NgModule({
   declarations: [
@@ -43,7 +44,8 @@ import { LogRequestInterceptor } from './services/log-request.interceptor';
     DataService,
     {provide: ErrorHandler, useClass: BtErrorHandlerService},
     {provide: HTTP_INTERCEPTORS, useClass: AppHeaderInterceptor, multi: true},
-    {provide: HTTP_INTERCEPTORS, useClass: LogRequestInterceptor, multi: true}
+    {provide: HTTP_INTERCEPTORS, useClass: LogRequestInterceptor, multi: true},
+    {provide: HTTP_INTERCEPTORS, useClass: CacheInterceptor, multi: true},
   ],
   bootstrap: [AppComponent]
 })

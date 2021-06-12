@@ -51,6 +51,48 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "5VXo":
+/*!************************************************!*\
+  !*** ./src/app/services/http-cache.service.ts ***!
+  \************************************************/
+/*! exports provided: HttpCacheService */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "HttpCacheService", function() { return HttpCacheService; });
+/* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! tslib */ "mrSG");
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/core */ "fXoL");
+
+
+let HttpCacheService = class HttpCacheService {
+    constructor() {
+        this.requests = {};
+    }
+    put(url, response) {
+        this.requests[url] = response;
+    }
+    get(url) {
+        return this.requests[url];
+    }
+    invalidateUrl(url) {
+        this.requests[url] = undefined;
+    }
+    invalidateCache() {
+        this.requests = {};
+    }
+};
+HttpCacheService.ctorParameters = () => [];
+HttpCacheService = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"])([
+    Object(_angular_core__WEBPACK_IMPORTED_MODULE_1__["Injectable"])({
+        providedIn: 'root'
+    })
+], HttpCacheService);
+
+
+
+/***/ }),
+
 /***/ "6hI5":
 /*!************************************************!*\
   !*** ./src/app/add-book/add-book.component.ts ***!
@@ -691,6 +733,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _services_bt_error_handler_service__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./services/bt-error-handler.service */ "nuZs");
 /* harmony import */ var _services_app_header_interceptor__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./services/app-header.interceptor */ "2pIK");
 /* harmony import */ var _services_log_request_interceptor__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./services/log-request.interceptor */ "Lrjk");
+/* harmony import */ var _services_cache_interceptor__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./services/cache.interceptor */ "qB2Z");
+
 
 
 
@@ -737,7 +781,8 @@ AppModule = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"])([
             _services_data_service__WEBPACK_IMPORTED_MODULE_12__["DataService"],
             { provide: _angular_core__WEBPACK_IMPORTED_MODULE_2__["ErrorHandler"], useClass: _services_bt_error_handler_service__WEBPACK_IMPORTED_MODULE_14__["BtErrorHandlerService"] },
             { provide: _angular_common_http__WEBPACK_IMPORTED_MODULE_4__["HTTP_INTERCEPTORS"], useClass: _services_app_header_interceptor__WEBPACK_IMPORTED_MODULE_15__["AppHeaderInterceptor"], multi: true },
-            { provide: _angular_common_http__WEBPACK_IMPORTED_MODULE_4__["HTTP_INTERCEPTORS"], useClass: _services_log_request_interceptor__WEBPACK_IMPORTED_MODULE_16__["LogRequestInterceptor"], multi: true }
+            { provide: _angular_common_http__WEBPACK_IMPORTED_MODULE_4__["HTTP_INTERCEPTORS"], useClass: _services_log_request_interceptor__WEBPACK_IMPORTED_MODULE_16__["LogRequestInterceptor"], multi: true },
+            { provide: _angular_common_http__WEBPACK_IMPORTED_MODULE_4__["HTTP_INTERCEPTORS"], useClass: _services_cache_interceptor__WEBPACK_IMPORTED_MODULE_17__["CacheInterceptor"], multi: true },
         ],
         bootstrap: [_app_component__WEBPACK_IMPORTED_MODULE_7__["AppComponent"]]
     })
@@ -898,6 +943,68 @@ BtErrorHandlerService.ctorParameters = () => [];
 BtErrorHandlerService = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"])([
     Object(_angular_core__WEBPACK_IMPORTED_MODULE_1__["Injectable"])()
 ], BtErrorHandlerService);
+
+
+
+/***/ }),
+
+/***/ "qB2Z":
+/*!***********************************************!*\
+  !*** ./src/app/services/cache.interceptor.ts ***!
+  \***********************************************/
+/*! exports provided: CacheInterceptor */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "CacheInterceptor", function() { return CacheInterceptor; });
+/* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! tslib */ "mrSG");
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/core */ "fXoL");
+/* harmony import */ var _angular_common_http__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @angular/common/http */ "IheW");
+/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! rxjs */ "qCKp");
+/* harmony import */ var _http_cache_service__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./http-cache.service */ "5VXo");
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! rxjs/operators */ "kU1M");
+
+
+
+
+
+
+let CacheInterceptor = class CacheInterceptor {
+    constructor(cacheService) {
+        this.cacheService = cacheService;
+    }
+    intercept(req, next) {
+        //Pass along non-cacheable requests and invalidate cache
+        if (req.method !== 'GET') {
+            console.log(`Invalidate Cache: ${req.method} = ${req.url}`);
+            this.cacheService.invalidateCache();
+            return next.handle(req);
+        }
+        //Attempt to retrieve a cached response.
+        const cachedResponse = this.cacheService.get(req.url);
+        //return cached response.
+        if (cachedResponse) {
+            console.log(`Returning a cached response: ${cachedResponse.url}`);
+            console.log(cachedResponse);
+            return Object(rxjs__WEBPACK_IMPORTED_MODULE_3__["of"])(cachedResponse);
+        }
+        //send request to server and add response to cache
+        return next.handle(req)
+            .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_5__["tap"])(event => {
+            if (event instanceof _angular_common_http__WEBPACK_IMPORTED_MODULE_2__["HttpResponse"]) {
+                console.log(`Adding item to cache: ${req.url}`);
+                this.cacheService.put(req.url, event);
+            }
+        }));
+    }
+};
+CacheInterceptor.ctorParameters = () => [
+    { type: _http_cache_service__WEBPACK_IMPORTED_MODULE_4__["HttpCacheService"] }
+];
+CacheInterceptor = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"])([
+    Object(_angular_core__WEBPACK_IMPORTED_MODULE_1__["Injectable"])()
+], CacheInterceptor);
 
 
 
